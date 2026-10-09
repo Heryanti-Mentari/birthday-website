@@ -499,11 +499,17 @@ initFirebase();
     }
     function placeStar() {
       const pad = 12;
-      const starW = star.offsetWidth || 74,
-        starH = star.offsetHeight || 74;
-      const maxX = area.clientWidth - starW - pad * 2;
-      const maxY = area.clientHeight - starH - pad * 2;
-      if (maxX <= 0 || maxY <= 0) return;
+      const starW = star.offsetWidth || star.getBoundingClientRect().width || 74,
+        starH = star.offsetHeight || star.getBoundingClientRect().height || 74;
+      // Ukur lebar area dari rect DAN clientWidth lalu ambil yang terbesar: saat viewport
+      // berubah/relayout, salah satunya bisa masih bernilai 0 (mis. area baru tampil).
+      // Ini penting supaya bintang tidak terletak di luar area (terpotong oleh
+      // overflow:hidden sehingga tidak bisa ditekan).
+      const boxRect = area.getBoundingClientRect();
+      const boxW = Math.max(area.clientWidth || 0, Math.round(boxRect.width));
+      const boxH = Math.max(area.clientHeight || 0, Math.round(boxRect.height));
+      const maxX = Math.max(0, boxW - starW - pad * 2);
+      const maxY = Math.max(0, boxH - starH - pad * 2);
       const prevX = parseFloat(star.style.left),
         prevY = parseFloat(star.style.top);
       let x = pad,
@@ -513,8 +519,8 @@ initFirebase();
         y = pad + Math.random() * maxY;
         if (isNaN(prevX) || isNaN(prevY) || Math.hypot(x - prevX, y - prevY) > 90) break;
       }
-      star.style.left = x + 'px';
-      star.style.top = y + 'px';
+      star.style.left = Math.min(x, maxX).toFixed(1) + 'px';
+      star.style.top = Math.min(y, maxY).toFixed(1) + 'px';
     }
     function stopMoving() {
       if (moveTimer) {
@@ -1083,23 +1089,49 @@ initFirebase();
       if (e.key === 'ArrowLeft') input.left = false;
       else if (e.key === 'ArrowRight') input.right = false;
     });
-    [...controls.querySelectorAll('[data-dash]')].forEach((b) => {
+    // Satu-satunya pendekatan dipilih via feature detection agar tidak ada aksi ganda.
+    // Catatan: TIDAK ada preventDefault() di sini — pada WebKit (iOS Safari) membatalkan
+    // pointerdown menekan event click, dan CSS `touch-action:none` di .dash-btn sudah
+    // mencegah scroll/zoom/seleksi teks sehingga preventDefault tidak diperlukan.
+    const dashBtns = [...controls.querySelectorAll('[data-dash]')];
+    const attachDashBtn = (b, onDown, onUp, onLeave) => {
       const side = b.dataset.dash;
-      const on = (e) => {
-        e.preventDefault();
+      const down = () => {
         b.classList.add('active');
-        setInput(side, true);
+        onDown(side);
       };
-      const off = (e) => {
-        if (e) e.preventDefault();
+      const up = () => {
         b.classList.remove('active');
-        setInput(side, false);
+        onUp(side);
       };
-      b.addEventListener('pointerdown', on);
-      b.addEventListener('pointerup', off);
-      b.addEventListener('pointercancel', off);
-      b.addEventListener('pointerleave', off);
-    });
+      const leave = () => {
+        b.classList.remove('active');
+        onLeave(side);
+      };
+      if (window.PointerEvent) {
+        b.addEventListener('pointerdown', down);
+        b.addEventListener('pointerup', up);
+        b.addEventListener('pointercancel', up);
+        b.addEventListener('pointerleave', leave);
+      } else if ('ontouchstart' in window) {
+        b.addEventListener('touchstart', down, { passive: true });
+        b.addEventListener('touchend', up);
+        b.addEventListener('touchcancel', up);
+        b.addEventListener('touchleave', leave);
+      } else {
+        b.addEventListener('mousedown', down);
+        b.addEventListener('mouseup', up);
+        b.addEventListener('mouseleave', leave);
+      }
+    };
+    dashBtns.forEach((b) =>
+      attachDashBtn(
+        b,
+        (side) => setInput(side, true),
+        (side) => setInput(side, false),
+        (side) => setInput(side, false),
+      ),
+    );
     let rz;
     window.addEventListener('resize', () => {
       if (!active) return;
@@ -1116,6 +1148,8 @@ initFirebase();
         active = false;
         input.left = false;
         input.right = false;
+        // lepas juga status visual tombol agar tidak ada tombol "nyangkut" saat game ditinggalkan
+        dashBtns.forEach((b) => b.classList.remove('active'));
         if (raf) {
           cancelAnimationFrame(raf);
           raf = null;
