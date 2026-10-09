@@ -208,4 +208,68 @@ small{text-align:right;opacity:.7}
 .sign-label{margin-top:16px;opacity:.85}
 #endSign{font-weight:800;color:var(--gold)}
 .stars-row{font-size:1.6rem;margin:12px 0}
+/* ===== ARCADE ===== */
+.arcade-menu{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin:26px 0 4px}
+.game-card{--accent:var(--cyan);display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;padding:18px 14px;border-radius:22px;border:2px solid var(--accent);background:linear-gradient(180deg,rgba(22,34,107,.85),rgba(10,15,46,.88));box-shadow:0 0 22px rgba(124,77,255,.22);transition:transform .2s,box-shadow .2s}
+.game-card[data-accent="gold"]{--accent:var(--gold)}
+.game-card[data-accent="green"]{--accent:#7cff9b}
+.game-card[data-accent="purple"]{--accent:var(--purple)}
+.game-card[data-accent="cyan"]{--accent:var(--cyan)}
+.game-card:hover{transform:translateY(-4px);box-shadow:0 0 30px rgba(94,231,255,.35)}
+.game-card-icon{font-size:2.6rem;line-height:1;filter:drop-shadow(0 0 12px rgba(255,255,255,.35))}
+.game-card h3{font-size:1.05rem;line-height:1.25;color:var(--accent);overflow-wrap:anywhere}
+.game-card p{font-size:.9rem;opacity:.9;flex:1;overflow-wrap:anywhere}
+.game-card .btn{margin-top:6px;min-height:48px;width:100%}
+.game-screen{text-align:center;animation:pop .4s both}
+.screen-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:16px 0 4px}
+.screen-title{font-size:1.12rem;color:var(--gold);text-align:left;line-height:1.25}
+.back-btn{min-height:44px;padding:8px 16px;font-size:.85rem;white-space:nowrap}
+.arcade-continue{display:block;margin:30px auto 0}
+/* penalty shootout */
+.pitch{position:relative;width:100%;max-width:480px;height:min(66vw,300px);min-height:250px;margin:14px auto 0;overflow:hidden;border-radius:20px;border:3px solid #d9f7c4;background:repeating-linear-gradient(90deg,#43b551 0 12.5%,#379d42 12.5% 25%);box-shadow:inset 0 0 40px rgba(0,0,0,.35),0 0 24px rgba(94,231,255,.15)}
+.goal{position:absolute;top:8%;left:50%;transform:translateX(-50%);width:72%;height:40%;z-index:1;border:6px solid #f4f7ff;border-bottom:0;border-radius:8px 8px 0 0;background:rgba(255,255,255,.08);box-shadow:0 0 18px rgba(255,255,255,.4)}
+.goal .net{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.4) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.4) 1px,transparent 1px);background-size:14px 14px;opacity:.55}
+.goal .post,.goal .crossbar{display:none}
+.pitch-spot{position:absolute;left:50%;bottom:9%;width:18px;height:6px;border-radius:50%;background:rgba(255,255,255,.6);transform:translateX(-50%)}
+.keeper{position:absolute;top:24%;left:50%;z-index:2;font-size:2.5rem;line-height:1;filter:drop-shadow(0 4px 6px rgba(0,0,0,.4));transform:translateX(-50%);transition:left .45s ease,transform .45s ease}
+.keeper.dive-left{left:25%;transform:translateX(-50%) rotate(-30deg)}
+.keeper.dive-right{left:75%;transform:translateX(-50%) rotate(30deg)}
+.keeper.dive-center{left:50%;transform:translateX(-50%) scale(1.08)}
+.ball{position:absolute;left:50%;bottom:12%;z-index:3;font-size:1.9rem;line-height:1;filter:drop-shadow(0 4px 6px rgba(0,0,0,.4));transform:translate(-50%,0);transition:left .5s ease,bottom .5s ease,transform .5s ease}
+.ball.kick-left{left:25%;bottom:68%;transform:translate(-50%,0) scale(.8)}
+.ball.kick-center{left:50%;bottom:68%;transform:translate(-50%,0) scale(.8)}
+.ball.kick-right{left:75%;bottom:68%;transform:translate(-50%,0) scale(.8)}
+.ball.saved{bottom:26%;transform:translate(-50%,0) rotate(180deg) scale(.95)}
+.penalty-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin:16px 0 0}
+.kick-btn{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:92px;min-height:72px;padding:10px;border:2px solid var(--cyan);border-radius:18px;background:rgba(22,34,107,.82);color:#fff;font:inherit;font-weight:800;font-size:1.05rem;cursor:pointer;touch-action:manipulation}
+.kick-btn span{font-size:.78rem;letter-spacing:.06em;opacity:.9}
+.kick-btn:active{transform:scale(.95)}
+.kick-btn:disabled{opacity:.45;cursor:default}
+/* memory match */
+.memory-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;max-width:440px;margin:18px auto 0}
+.mem-card{position:relative;aspect-ratio:1;border:0;padding:0;border-radius:16px;background:transparent;cursor:pointer;touch-action:manipulation;perspective:600px}
+.mem-inner{position:absolute;inset:0;transform-style:preserve-3d;transition:transform .4s}
+.mem-card.flipped .mem-inner,.mem-card.matched .mem-inner{transform:rotateY(180deg)}
+.mem-face{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;border-radius:16px;backface-visibility:hidden;-webkit-backface-visibility:hidden;font-size:clamp(1.5rem,7vw,2.1rem)}
+.mem-face.back{background:linear-gradient(135deg,var(--purple),var(--blue));border:2px solid rgba(94,231,255,.6)}
+.mem-face.back:after{content:"❓"}
+.mem-face.front{background:rgba(10,15,46,.92);border:2px solid var(--gold);transform:rotateY(180deg)}
+.mem-card.matched .mem-face.front{border-color:#7cff9b;box-shadow:0 0 18px rgba(124,255,155,.7)}
+.mem-card.matched{cursor:default}
+/* rocket dash */
+.dash-area{position:relative;width:100%;max-width:480px;height:min(72vw,340px);min-height:260px;margin:14px auto 0;border-radius:20px;overflow:hidden;border:2px solid rgba(94,231,255,.5);background:radial-gradient(circle at 50% 20%,rgba(124,77,255,.4),rgba(6,10,32,.96) 70%)}
+#dashCanvas{display:block;width:100%;height:100%;touch-action:none}
+.dash-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:14px;background:rgba(5,8,30,.72);animation:pop .4s both}
+.dash-overlay .game-done{margin:0;max-width:340px}
+.dash-overlay .game-done .btn{margin-top:8px}
+.dash-controls{display:flex;gap:16px;justify-content:center;margin:16px 0 0}
+.dash-btn{width:92px;height:66px;border-radius:18px;border:2px solid var(--cyan);background:rgba(22,34,107,.85);color:#fff;font-size:1.6rem;cursor:pointer;touch-action:none;-webkit-tap-highlight-color:transparent;user-select:none}
+.dash-btn:active,.dash-btn.active{transform:scale(.95);background:rgba(94,231,255,.3)}
+@media (max-width:520px){
+  .arcade-menu{grid-template-columns:1fr}
+  .screen-head{flex-direction:column-reverse;align-items:stretch}
+  .back-btn{align-self:flex-start}
+  .screen-title{text-align:center}
+  .kick-btn{min-width:76px;min-height:66px;flex:1}
+}
 @media (prefers-reduced-motion:reduce){*{animation-duration:.01s!important;transition-duration:.01s!important}.meteors,.dust{display:none}}

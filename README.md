@@ -18,6 +18,25 @@ Path diatur di `birthdayConfig` (`music` dan `sounds`) pada `script.js`. Kalau f
   - `assets/sounds/mixkit-cheering-crowd-loud-whistle-610.wav` — kemenangan
   - `assets/sounds/message.mp3` — pesan guestbook *(format MP3; tanpa file ini efek pesan dilewati dan situs tetap berfungsi)*
 
+## 4b. Mini Arcade — 4 Game
+Semua game ada dalam satu menu **LITTLE ASTRONAUT ARCADE** (section `#arcade` di `index.html`):
+
+| Game | Cara main | Kondisi selesai |
+|---|---|---|
+| **Catch the Stars** | Tap bintang ⭐ yang berpindah-pindah | 5/5 bintang terkumpul |
+| **Afiq's Birthday Football Cup** | Pilih KIRI / TENGAH / KANAN, maksimal 5 tendangan | 5 tendangan selesai |
+| **Space Memory Match** | Buka 2 kartu, cari 6 pasang | Semua pasang ditemukan |
+| **Rocket Dash** | Arrow ← → (desktop) atau tahan tombol ◀ ▶ (HP) | 10 ⭐ terkumpul atau nyawa habis |
+
+Catatan penting:
+- Setiap game punya tombol **← ARCADE** dan **🔄 PLAY AGAIN**; pindah game otomatis menghentikan timer/animasi game sebelumnya, dan hanya game aktif yang menerima input.
+- Menyelesaikan game **tidak wajib dan tidak otomatis** membuka modal hadiah. Hadiah selalu bisa dibuka dari section **Birthday Gift** atau lewat tombol 🎉 LANJUT KE PERAYAAN ULANG TAHUN setelah menu arcade.
+- Tombol **BUKA HADIAH SPESIAL 🎁** di akhir Catch the Stars juga membuka hadiah yang sama.
+- Semua game tetap berjalan tanpa file audio (efek suara bersifat opsional, memakai `AudioManager` yang sudah ada; tidak ada instance musik tambahan).
+
+### Uji otomatis (opsional)
+Karena tidak ada test runner di repo ini, halaman menyediakan hook `window.ArcadeTest` (`open`, `back`, `activeGame`, `football.setKeeper/kick/state`, `memory.state`, `dash.force/state`) agar mudah diuji lewat DevTools Console / headless Chrome. Hook ini tidak mengubah alur permainan normal dan tidak menyimpan data ke mana pun.
+
 ## 5. Setup Firebase (yang harus kamu isi sendiri)
 1. https://console.firebase.google.com → **Add project**.
 2. **Build → Firestore Database → Create database** (mode production).

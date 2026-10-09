@@ -466,158 +466,735 @@ $('gbForm').addEventListener('submit', async (e) => {
 initFirebase();
 
 
-/* ===== MINI GAME — CATCH THE STARS ===== */
-function initMiniGame() {
-  const area = $('gameArea'),
-    star = $('starBtn'),
-    hint = $('gameHint'),
-    progress = $('gameProgress'),
-    pips = $('gamePips'),
-    done = $('gameDone'),
-    claim = $('claimGiftBtn'),
-    restart = $('gameRestartBtn');
-  if (!area || !star || !done || !claim) return;
-  const TOTAL = 5;
-  const reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const cheers = ['', 'Hebat! ⭐', 'Bagus! 🚀', 'Sedikit lagi! ⭐', 'Hampir sampai! 🚀'];
-  let count = 0,
-    busy = false,
-    finished = false,
-    moveTimer = null;
+/* ===== MINI ARCADE — MENU + 4 GAMES ===== */
+(function () {
+  const reduceMotion = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
 
-  if (pips) {
-    pips.replaceChildren();
-    for (let i = 0; i < TOTAL; i++) pips.appendChild(el('span', 'pip'));
-  }
-  function setProgress() {
-    progress.textContent = 'STARS COLLECTED: ' + count + '/' + TOTAL;
-    if (pips) [...pips.children].forEach((p, i) => p.classList.toggle('on', i < count));
-  }
-  function placeStar() {
-    const pad = 12;
-    const starW = star.offsetWidth || 74,
-      starH = star.offsetHeight || 74;
-    const maxX = area.clientWidth - starW - pad * 2;
-    const maxY = area.clientHeight - starH - pad * 2;
-    if (maxX <= 0 || maxY <= 0) return;
-    const prevX = parseFloat(star.style.left),
-      prevY = parseFloat(star.style.top);
-    let x = pad,
-      y = pad;
-    for (let i = 0; i < 12; i++) {
-      x = pad + Math.random() * maxX;
-      y = pad + Math.random() * maxY;
-      if (isNaN(prevX) || isNaN(prevY) || Math.hypot(x - prevX, y - prevY) > 90) break;
+  /* ---------- Game 1: Catch the Stars (preserved behaviour) ---------- */
+  function createStarsGame() {
+    const area = $('gameArea'),
+      star = $('starBtn'),
+      hint = $('gameHint'),
+      progress = $('gameProgress'),
+      pips = $('gamePips'),
+      done = $('gameDone'),
+      claim = $('claimGiftBtn'),
+      restart = $('gameRestartBtn');
+    const TOTAL = 5;
+    const cheers = ['', 'Hebat! ⭐', 'Bagus! 🚀', 'Sedikit lagi! ⭐', 'Hampir sampai! 🚀'];
+    let count = 0,
+      busy = false,
+      finished = false,
+      active = false,
+      moveTimer = null,
+      tapTimer = null;
+
+    if (pips) {
+      pips.replaceChildren();
+      for (let i = 0; i < TOTAL; i++) pips.appendChild(el('span', 'pip'));
     }
-    star.style.left = x + 'px';
-    star.style.top = y + 'px';
-  }
-  function stopMoving() {
-    if (moveTimer) {
-      clearInterval(moveTimer);
-      moveTimer = null;
+    function setProgress() {
+      progress.textContent = 'STARS COLLECTED: ' + count + '/' + TOTAL;
+      if (pips) [...pips.children].forEach((p, i) => p.classList.toggle('on', i < count));
     }
-  }
-  function startMoving() {
-    stopMoving();
-    if (reduce) return;
-    moveTimer = setInterval(() => {
-      if (!busy && !finished && !document.hidden) placeStar();
-    }, 2600);
-  }
-  function spark() {
-    const cx = star.offsetLeft + star.offsetWidth / 2,
-      cy = star.offsetTop + star.offsetHeight / 2;
-    for (let i = 0; i < 3; i++) {
-      const s = el('span', 'spark', i === 1 ? '⭐' : '✨');
-      s.style.left = cx + (Math.random() * 30 - 15) + 'px';
-      s.style.top = cy + (Math.random() * 30 - 15) + 'px';
-      s.style.animationDelay = (i * 0.05).toFixed(2) + 's';
-      area.appendChild(s);
-      setTimeout(() => s.remove(), 780);
+    function placeStar() {
+      const pad = 12;
+      const starW = star.offsetWidth || 74,
+        starH = star.offsetHeight || 74;
+      const maxX = area.clientWidth - starW - pad * 2;
+      const maxY = area.clientHeight - starH - pad * 2;
+      if (maxX <= 0 || maxY <= 0) return;
+      const prevX = parseFloat(star.style.left),
+        prevY = parseFloat(star.style.top);
+      let x = pad,
+        y = pad;
+      for (let i = 0; i < 12; i++) {
+        x = pad + Math.random() * maxX;
+        y = pad + Math.random() * maxY;
+        if (isNaN(prevX) || isNaN(prevY) || Math.hypot(x - prevX, y - prevY) > 90) break;
+      }
+      star.style.left = x + 'px';
+      star.style.top = y + 'px';
     }
-  }
-  function finish() {
-    if (finished) return;
-    finished = true;
-    stopMoving();
-    star.classList.add('hidden');
-    star.disabled = true;
-    if (hint) hint.classList.add('hidden');
-    progress.textContent = 'STARS COLLECTED: ' + TOTAL + '/' + TOTAL + ' ⭐';
-    if (pips) [...pips.children].forEach((p) => p.classList.add('on'));
-    done.classList.remove('hidden');
-    AudioManager.sfx('victory');
-    confetti(180);
-    setTimeout(() => claim.focus(), 350);
-  }
-  function reset() {
-    count = 0;
-    busy = false;
-    finished = false;
-    stopMoving();
-    star.disabled = false;
-    star.classList.remove('hidden', 'tapped');
-    if (hint) {
-      hint.classList.remove('hidden');
-      hint.textContent = 'Tap bintangnya! ⭐';
+    function stopMoving() {
+      if (moveTimer) {
+        clearInterval(moveTimer);
+        moveTimer = null;
+      }
     }
-    done.classList.add('hidden');
-    setProgress();
-    placeStar();
-    startMoving();
-  }
-  star.onclick = () => {
-    if (busy || finished || star.disabled) return;
-    busy = true;
-    star.classList.add('tapped');
-    spark();
-    count++;
-    setProgress();
-    AudioManager.sfx('star');
-    setTimeout(() => {
-      star.classList.remove('tapped');
-      if (count >= TOTAL) {
+    function startMoving() {
+      stopMoving();
+      if (reduceMotion || !active) return;
+      moveTimer = setInterval(() => {
+        if (active && !busy && !finished && !document.hidden) placeStar();
+      }, 2600);
+    }
+    function spark() {
+      const cx = star.offsetLeft + star.offsetWidth / 2,
+        cy = star.offsetTop + star.offsetHeight / 2;
+      for (let i = 0; i < 3; i++) {
+        const s = el('span', 'spark', i === 1 ? '⭐' : '✨');
+        s.style.left = cx + (Math.random() * 30 - 15) + 'px';
+        s.style.top = cy + (Math.random() * 30 - 15) + 'px';
+        s.style.animationDelay = (i * 0.05).toFixed(2) + 's';
+        area.appendChild(s);
+        setTimeout(() => s.remove(), 780);
+      }
+    }
+    function finish() {
+      if (finished) return;
+      finished = true;
+      stopMoving();
+      star.classList.add('hidden');
+      star.disabled = true;
+      if (hint) hint.classList.add('hidden');
+      progress.textContent = 'STARS COLLECTED: ' + TOTAL + '/' + TOTAL + ' ⭐';
+      if (pips) [...pips.children].forEach((p) => p.classList.add('on'));
+      done.classList.remove('hidden');
+      AudioManager.sfx('victory');
+      confetti(180);
+      setTimeout(() => claim.focus(), 350);
+    }
+    function reset() {
+      count = 0;
+      busy = false;
+      finished = false;
+      stopMoving();
+      star.disabled = false;
+      star.classList.remove('hidden', 'tapped');
+      if (hint) {
+        hint.classList.remove('hidden');
+        hint.textContent = 'Tap bintangnya! ⭐';
+      }
+      done.classList.add('hidden');
+      setProgress();
+      placeStar();
+      startMoving();
+    }
+    star.onclick = () => {
+      if (!active || busy || finished || star.disabled) return;
+      busy = true;
+      star.classList.add('tapped');
+      spark();
+      count++;
+      setProgress();
+      AudioManager.sfx('star');
+      tapTimer = setTimeout(() => {
+        tapTimer = null;
+        star.classList.remove('tapped');
+        if (count >= TOTAL) {
+          busy = false;
+          finish();
+          return;
+        }
+        if (hint) hint.textContent = cheers[count] || '';
+        placeStar();
         busy = false;
-        finish();
+      }, 280);
+    };
+    claim.onclick = () => openGift();
+    if (restart) restart.onclick = reset;
+    let rt;
+    window.addEventListener('resize', () => {
+      clearTimeout(rt);
+      rt = setTimeout(() => {
+        if (active && !finished) placeStar();
+      }, 200);
+    });
+    document.addEventListener('visibilitychange', () => {
+      if (!active) return;
+      if (document.hidden) stopMoving();
+      else if (!finished) startMoving();
+    });
+    return {
+      start() {
+        active = true;
+        reset();
+      },
+      stop() {
+        active = false;
+        stopMoving();
+        if (tapTimer) {
+          clearTimeout(tapTimer);
+          tapTimer = null;
+        }
+        busy = false;
+        star.classList.remove('tapped');
+      },
+    };
+  }
+
+  /* ---------- Game 2: Penalty Shootout ---------- */
+  function createFootballGame() {
+    const ball = $('fbBall'),
+      keeper = $('fbKeeper'),
+      scoreEl = $('fbScore'),
+      hint = $('fbHint'),
+      actions = $('fbActions'),
+      done = $('fbDone'),
+      doneTitle = $('fbDoneTitle'),
+      doneText = $('fbDoneText'),
+      again = $('fbAgainBtn');
+    const DIRS = ['left', 'center', 'right'];
+    const MAX = 5;
+    let goals = 0,
+      kicks = 0,
+      busy = false,
+      finished = false,
+      active = false,
+      keeperOverride = null,
+      timers = [];
+
+    function later(fn, ms) {
+      const t = setTimeout(() => {
+        timers = timers.filter((x) => x !== t);
+        fn();
+      }, ms);
+      timers.push(t);
+    }
+    function clearTimers() {
+      timers.forEach(clearTimeout);
+      timers = [];
+    }
+    function setActions(on) {
+      [...actions.querySelectorAll('button')].forEach((b) => (b.disabled = !on));
+    }
+    function resetShot() {
+      ball.className = 'ball';
+      keeper.className = 'keeper';
+    }
+    function updateScore() {
+      scoreEl.textContent = 'GOALS: ' + goals + ' · KICKS: ' + kicks + '/' + MAX;
+    }
+    function pickKeeper() {
+      if (keeperOverride) {
+        const k = keeperOverride;
+        keeperOverride = null;
+        return k;
+      }
+      return DIRS[(Math.random() * DIRS.length) | 0];
+    }
+    function finish() {
+      if (finished) return;
+      finished = true;
+      busy = false;
+      clearTimers();
+      setActions(false);
+      doneTitle.textContent = 'FULL TIME — ' + goals + ' GOL! ⚽';
+      let msg;
+      if (goals === MAX) msg = 'SEMPURNA! Semua tendangan jadi gol! Kamu bintang lapangan, Kapten Afiq! 🌟';
+      else if (goals >= 3) msg = 'Hebat! Kamu mencetak ' + goals + ' gol. Tim ' + C.name.split(' ')[0] + ' luar biasa! 🎉';
+      else if (goals >= 1) msg = 'Bagus! Kamu mencetak ' + goals + ' gol. Terus berlatih, ya! ⚽';
+      else msg = 'Tidak apa-apa, yang penting kamu sudah berani mencoba! Main lagi yuk! 💪';
+      doneText.textContent = msg;
+      done.classList.remove('hidden');
+      if (goals > 0) {
+        AudioManager.sfx('victory');
+        confetti(150);
+      }
+      later(() => again.focus(), 300);
+    }
+    function kick(dir) {
+      if (!active || busy || finished || kicks >= MAX) return;
+      if (DIRS.indexOf(dir) < 0) return;
+      busy = true;
+      setActions(false);
+      hint.textContent = 'Bola meluncur... ⚽';
+      const keeperDir = pickKeeper();
+      ball.className = 'ball kick-' + dir;
+      keeper.className = 'keeper dive-' + keeperDir;
+      const isGoal = keeperDir !== dir;
+      later(() => {
+        if (isGoal) {
+          goals++;
+          hint.textContent = 'GOOOL! ⚽🎉';
+          AudioManager.sfx('star');
+        } else {
+          ball.className = 'ball kick-' + dir + ' saved';
+          hint.textContent = 'DITANGKAP! 🧤 Hebat kipernya!';
+        }
+      }, 520);
+      later(() => {
+        kicks++;
+        updateScore();
+        busy = false;
+        if (kicks >= MAX) {
+          finish();
+          return;
+        }
+        resetShot();
+        setActions(true);
+        hint.textContent = 'Pilih arah tendangan berikutnya! 🥅';
+      }, 1250);
+    }
+    function reset() {
+      clearTimers();
+      goals = 0;
+      kicks = 0;
+      busy = false;
+      finished = false;
+      keeperOverride = null;
+      resetShot();
+      updateScore();
+      done.classList.add('hidden');
+      hint.textContent = 'Pilih arah, lalu lihat aksinya! 🥅';
+      setActions(true);
+    }
+    [...actions.querySelectorAll('[data-kick]')].forEach((b) => b.addEventListener('click', () => kick(b.dataset.kick)));
+    if (again) again.onclick = reset;
+    return {
+      start() {
+        active = true;
+        reset();
+      },
+      stop() {
+        active = false;
+        busy = false;
+        clearTimers();
+        setActions(false);
+      },
+      reset,
+      kick,
+      _setKeeper(d) {
+        keeperOverride = d || null;
+      },
+      _state() {
+        return { goals, kicks, busy, finished, active };
+      },
+    };
+  }
+
+  /* ---------- Game 3: Space Memory Match ---------- */
+  function createMemoryGame() {
+    const grid = $('memGrid'),
+      stats = $('memStats'),
+      done = $('memDone'),
+      doneText = $('memDoneText'),
+      again = $('memAgainBtn');
+    const ICONS = ['🚀', '🪐', '👨‍🚀', '⭐', '🌙', '☄️'];
+    const PAIRS = ICONS.length;
+    let first = null,
+      second = null,
+      lock = false,
+      matched = 0,
+      attempts = 0,
+      active = false,
+      finished = false,
+      closeTimer = null;
+
+    function clearTimer() {
+      if (closeTimer) {
+        clearTimeout(closeTimer);
+        closeTimer = null;
+      }
+    }
+    function updateStats() {
+      stats.textContent = 'PASANGAN: ' + matched + '/' + PAIRS + ' · PERCOBAAN: ' + attempts;
+    }
+    function build() {
+      clearTimer();
+      grid.replaceChildren();
+      first = second = null;
+      lock = false;
+      matched = 0;
+      attempts = 0;
+      finished = false;
+      done.classList.add('hidden');
+      const deck = [];
+      ICONS.forEach((ic) => {
+        deck.push(ic);
+        deck.push(ic);
+      });
+      for (let i = deck.length - 1; i > 0; i--) {
+        const j = (Math.random() * (i + 1)) | 0;
+        [deck[i], deck[j]] = [deck[j], deck[i]];
+      }
+      deck.forEach((ic, idx) => {
+        const card = el('button', 'mem-card');
+        card.type = 'button';
+        card.dataset.icon = ic;
+        card.setAttribute('aria-label', 'Kartu memori ' + (idx + 1));
+        const inner = el('span', 'mem-inner');
+        inner.appendChild(el('span', 'mem-face back'));
+        inner.appendChild(el('span', 'mem-face front', ic));
+        card.appendChild(inner);
+        card.addEventListener('click', () => flip(card));
+        grid.appendChild(card);
+      });
+      updateStats();
+    }
+    function finish() {
+      if (finished) return;
+      finished = true;
+      doneText.textContent = 'Kamu menemukan semua pasangan dalam ' + attempts + ' percobaan! Hebat, Kapten ' + C.name.split(' ')[0] + '! 🚀';
+      done.classList.remove('hidden');
+      AudioManager.sfx('victory');
+      confetti(140);
+    }
+    function flip(card) {
+      if (!active || lock || finished) return;
+      if (card.classList.contains('matched') || card.classList.contains('flipped')) return;
+      card.classList.add('flipped');
+      if (!first) {
+        first = card;
         return;
       }
-      if (hint) hint.textContent = cheers[count] || '';
-      placeStar();
-      busy = false;
-    }, 280);
-  };
-  claim.onclick = () => openGift();
-  if (restart) restart.onclick = reset;
-
-  if ('IntersectionObserver' in window) {
-    const gio = new IntersectionObserver(
-      (es) =>
-        es.forEach((e) => {
-          if (e.isIntersecting) {
-            placeStar();
-            startMoving();
-            gio.unobserve(e.target);
-          }
-        }),
-      { threshold: 0.25 },
-    );
-    gio.observe(area);
-  } else {
-    placeStar();
-    startMoving();
+      second = card;
+      attempts++;
+      updateStats();
+      lock = true;
+      if (first.dataset.icon === second.dataset.icon) {
+        const a = first,
+          b = second;
+        first = second = null;
+        a.classList.add('matched');
+        b.classList.add('matched');
+        a.classList.remove('flipped');
+        b.classList.remove('flipped');
+        matched++;
+        updateStats();
+        AudioManager.sfx('star');
+        lock = false;
+        if (matched >= PAIRS) finish();
+      } else {
+        closeTimer = setTimeout(() => {
+          first.classList.remove('flipped');
+          second.classList.remove('flipped');
+          first = second = null;
+          lock = false;
+          closeTimer = null;
+        }, 800);
+      }
+    }
+    if (again)
+      again.onclick = () => {
+        if (active) build();
+      };
+    return {
+      start() {
+        active = true;
+        build();
+      },
+      stop() {
+        active = false;
+        clearTimer();
+        lock = true;
+      },
+      reset() {
+        build();
+      },
+      _state() {
+        return { matched, attempts, finished, active };
+      },
+    };
   }
-  let rt;
-  window.addEventListener('resize', () => {
-    clearTimeout(rt);
-    rt = setTimeout(() => {
-      if (!finished) placeStar();
-    }, 200);
+
+  /* ---------- Game 4: Rocket Dash ---------- */
+  function createDashGame() {
+    const area = $('dashArea'),
+      canvas = $('dashCanvas'),
+      stats = $('dashStats'),
+      doneBox = $('dashDone'),
+      doneEmoji = $('dashDoneEmoji'),
+      doneTitle = $('dashDoneTitle'),
+      doneText = $('dashDoneText'),
+      again = $('dashAgainBtn'),
+      controls = $('dashControls');
+    const TARGET = 10,
+      LIVES = 3;
+    const ctx = canvas.getContext('2d');
+    let W = 0,
+      H = 0,
+      score = 0,
+      lives = LIVES,
+      finished = false,
+      active = false,
+      raf = null,
+      last = 0;
+    let stars = [],
+      asteroids = [],
+      starTimer = 0,
+      astTimer = 0;
+    const input = { left: false, right: false };
+    const rocket = { x: 0, y: 0 };
+
+    function measure() {
+      const r = area.getBoundingClientRect();
+      W = Math.max(1, Math.round(r.width));
+      H = Math.max(1, Math.round(r.height));
+      const dpr = Math.min(2, window.devicePixelRatio || 1);
+      canvas.width = W * dpr;
+      canvas.height = H * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      rocket.y = H - H * 0.16;
+      if (!rocket.x || rocket.x < 0 || rocket.x > W) rocket.x = W / 2;
+    }
+    function updateStats() {
+      stats.textContent = '⭐ ' + score + '/' + TARGET + ' · ❤️ ' + lives;
+    }
+    function spawnStar() {
+      const os = Math.max(24, W * 0.08);
+      stars.push({ x: os + Math.random() * (W - os * 2), y: -os, r: os * 0.5, sp: H * (0.3 + Math.random() * 0.12) });
+    }
+    function spawnAst() {
+      const os = Math.max(26, W * 0.09);
+      asteroids.push({ x: os + Math.random() * (W - os * 2), y: -os, r: os * 0.5, sp: H * (0.36 + Math.random() * 0.14) });
+    }
+    function end(win) {
+      if (finished) return;
+      finished = true;
+      if (raf) {
+        cancelAnimationFrame(raf);
+        raf = null;
+      }
+      doneBox.classList.remove('hidden');
+      doneEmoji.textContent = win ? '🎉' : '💫';
+      doneTitle.textContent = win ? 'MISSION COMPLETE!' : 'MISSION OVER';
+      doneText.textContent = win
+        ? 'Kamu mengumpulkan ' + score + ' bintang dan menyelamatkan misi! Hebat, Kapten ' + C.name.split(' ')[0] + '! 🚀'
+        : 'Kamu mengumpulkan ' + score + ' bintang. Roket butuh istirahat sebentar. Main lagi yuk! 💪';
+      if (win) {
+        AudioManager.sfx('victory');
+        confetti(160);
+      } else {
+        confetti(50);
+      }
+    }
+    function update(dt) {
+      const dir = (input.left ? -1 : 0) + (input.right ? 1 : 0);
+      const spd = W * 1.05 * (reduceMotion ? 0.7 : 1);
+      rocket.x += dir * spd * dt;
+      const rr = Math.max(14, W * 0.06);
+      rocket.x = Math.max(rr, Math.min(W - rr, rocket.x));
+      starTimer -= dt;
+      if (starTimer <= 0) {
+        spawnStar();
+        starTimer = (reduceMotion ? 1.1 : 0.8) + Math.random() * 0.6;
+      }
+      astTimer -= dt;
+      if (astTimer <= 0) {
+        spawnAst();
+        astTimer = (reduceMotion ? 1.5 : 1.05) + Math.random() * 0.8;
+      }
+      const hit = Math.max(16, W * 0.07);
+      for (let i = stars.length - 1; i >= 0; i--) {
+        const o = stars[i];
+        o.y += o.sp * (reduceMotion ? 0.6 : 1) * dt;
+        if (o.y > H + 40) {
+          stars.splice(i, 1);
+          continue;
+        }
+        if (Math.hypot(o.x - rocket.x, o.y - rocket.y) < o.r + hit) {
+          stars.splice(i, 1);
+          score++;
+          updateStats();
+          AudioManager.sfx('star');
+          if (score >= TARGET) {
+            end(true);
+            return;
+          }
+        }
+      }
+      for (let i = asteroids.length - 1; i >= 0; i--) {
+        const o = asteroids[i];
+        o.y += o.sp * (reduceMotion ? 0.6 : 1) * dt;
+        if (o.y > H + 40) {
+          asteroids.splice(i, 1);
+          continue;
+        }
+        if (Math.hypot(o.x - rocket.x, o.y - rocket.y) < o.r + hit) {
+          asteroids.splice(i, 1);
+          lives--;
+          updateStats();
+          if (lives <= 0) {
+            end(false);
+            return;
+          }
+        }
+      }
+    }
+    function draw() {
+      ctx.clearRect(0, 0, W, H);
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      const font = 'px "Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",serif';
+      const os = Math.max(24, W * 0.08);
+      ctx.font = os + font;
+      stars.forEach((o) => ctx.fillText('⭐', o.x, o.y));
+      asteroids.forEach((o) => ctx.fillText('🪨', o.x, o.y));
+      const rs = Math.max(28, W * 0.13);
+      ctx.save();
+      ctx.translate(rocket.x, rocket.y);
+      const dir = (input.left ? -1 : 0) + (input.right ? 1 : 0);
+      ctx.rotate(-Math.PI / 4 + dir * 0.18);
+      ctx.font = rs + font;
+      ctx.fillText('🚀', 0, 0);
+      ctx.restore();
+    }
+    function loop(ts) {
+      if (!active || finished) return;
+      raf = requestAnimationFrame(loop);
+      if (!last) {
+        last = ts;
+        return;
+      }
+      let dt = (ts - last) / 1000;
+      last = ts;
+      if (dt > 0.05) dt = 0.05;
+      update(dt);
+      draw();
+    }
+    function reset() {
+      if (raf) {
+        cancelAnimationFrame(raf);
+        raf = null;
+      }
+      stars = [];
+      asteroids = [];
+      score = 0;
+      lives = LIVES;
+      finished = false;
+      input.left = false;
+      input.right = false;
+      starTimer = 0.5;
+      astTimer = 1.1;
+      doneBox.classList.add('hidden');
+      updateStats();
+      measure();
+      rocket.x = W / 2;
+      last = 0;
+      raf = requestAnimationFrame(loop);
+    }
+    function setInput(side, on) {
+      if (side === 'left') input.left = on;
+      else input.right = on;
+    }
+    document.addEventListener('keydown', (e) => {
+      if (!active) return;
+      if (e.key === 'ArrowLeft') {
+        input.left = true;
+        e.preventDefault();
+      } else if (e.key === 'ArrowRight') {
+        input.right = true;
+        e.preventDefault();
+      }
+    });
+    document.addEventListener('keyup', (e) => {
+      if (e.key === 'ArrowLeft') input.left = false;
+      else if (e.key === 'ArrowRight') input.right = false;
+    });
+    [...controls.querySelectorAll('[data-dash]')].forEach((b) => {
+      const side = b.dataset.dash;
+      const on = (e) => {
+        e.preventDefault();
+        b.classList.add('active');
+        setInput(side, true);
+      };
+      const off = (e) => {
+        if (e) e.preventDefault();
+        b.classList.remove('active');
+        setInput(side, false);
+      };
+      b.addEventListener('pointerdown', on);
+      b.addEventListener('pointerup', off);
+      b.addEventListener('pointercancel', off);
+      b.addEventListener('pointerleave', off);
+    });
+    let rz;
+    window.addEventListener('resize', () => {
+      if (!active) return;
+      clearTimeout(rz);
+      rz = setTimeout(measure, 150);
+    });
+    if (again) again.onclick = reset;
+    return {
+      start() {
+        active = true;
+        reset();
+      },
+      stop() {
+        active = false;
+        input.left = false;
+        input.right = false;
+        if (raf) {
+          cancelAnimationFrame(raf);
+          raf = null;
+        }
+      },
+      reset,
+      force(type) {
+        const os = Math.max(24, W * 0.08);
+        if (type === 'star') stars.push({ x: rocket.x, y: rocket.y, r: os * 0.5, sp: 0 });
+        else asteroids.push({ x: rocket.x, y: rocket.y, r: os * 0.5, sp: 0 });
+      },
+      _state() {
+        return { score, lives, finished, active, running: !!raf };
+      },
+    };
+  }
+
+  /* ---------- Arcade controller ---------- */
+  const menu = $('arcadeMenu'),
+    continueBtn = $('toBirthdayBtn');
+  const screens = {
+    stars: $('screen-stars'),
+    football: $('screen-football'),
+    memory: $('screen-memory'),
+    dash: $('screen-dash'),
+  };
+  const games = {
+    stars: createStarsGame(),
+    football: createFootballGame(),
+    memory: createMemoryGame(),
+    dash: createDashGame(),
+  };
+  let current = null;
+
+  function open(id) {
+    if (!games[id] || !screens[id]) return;
+    if (current && current !== id && games[current]) games[current].stop();
+    menu.classList.add('hidden');
+    continueBtn.classList.add('hidden');
+    Object.keys(screens).forEach((k) => screens[k].classList.toggle('hidden', k !== id));
+    current = id;
+    const arcade = $('arcade');
+    if (arcade) arcade.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+    games[id].start();
+  }
+  function backToArcade() {
+    if (current && games[current]) games[current].stop();
+    current = null;
+    Object.keys(screens).forEach((k) => screens[k].classList.add('hidden'));
+    menu.classList.remove('hidden');
+    continueBtn.classList.remove('hidden');
+    const arcade = $('arcade');
+    if (arcade) arcade.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+  }
+  document.querySelectorAll('[data-play]').forEach((b) => b.addEventListener('click', () => open(b.dataset.play)));
+  document.querySelectorAll('[data-back]').forEach((b) => b.addEventListener('click', backToArcade));
+  continueBtn.addEventListener('click', () => {
+    const gift = document.querySelector('section.gift');
+    if (gift) gift.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
   });
-  document.addEventListener('visibilitychange', () => {
-    if (document.hidden) stopMoving();
-    else if (!finished) startMoving();
-  });
-}
-initMiniGame();
+
+  // deterministic hooks for automated testing (no effect on normal play)
+  window.ArcadeTest = {
+    open,
+    back: backToArcade,
+    activeGame: () => current,
+    football: {
+      start: () => open('football'),
+      setKeeper: (d) => games.football._setKeeper(d),
+      kick: (d) => games.football.kick(d),
+      state: () => games.football._state(),
+    },
+    memory: { start: () => open('memory'), state: () => games.memory._state() },
+    dash: {
+      start: () => open('dash'),
+      force: (t) => games.dash.force(t),
+      state: () => games.dash._state(),
+    },
+    stars: { start: () => open('stars') },
+  };
+})();
 

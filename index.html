@@ -59,28 +59,142 @@
     <div id="timeline" class="timeline"></div>
   </section>
 
-  <section class="game" id="game" aria-labelledby="gameTitle">
-    <span class="badge">MINI GAME</span>
-    <h2 class="title" id="gameTitle">⭐ CATCH THE STARS</h2>
-    <p class="sub">Tangkap 5 bintang untuk menyelesaikan misimu, Kapten!</p>
-    <p class="game-progress" id="gameProgress" role="status" aria-live="polite">STARS COLLECTED: 0/5</p>
-    <div class="game-pips" id="gamePips" aria-hidden="true"></div>
-    <div class="game-area" id="gameArea">
-      <i class="twk t1" aria-hidden="true"></i>
-      <i class="twk t2" aria-hidden="true"></i>
-      <i class="twk t3" aria-hidden="true"></i>
-      <span class="game-astro" aria-hidden="true">👨‍🚀</span>
-      <button id="starBtn" class="game-star" type="button" aria-label="Tap bintang untuk mengumpulkan">⭐</button>
+  <section class="game" id="arcade" aria-labelledby="arcadeTitle">
+    <span class="badge">MINI ARCADE</span>
+    <h2 class="title" id="arcadeTitle">🚀 LITTLE ASTRONAUT ARCADE</h2>
+    <p class="sub">Pilih misi seru dan mainkan semuanya, Kapten!</p>
+
+    <div id="arcadeMenu" class="arcade-menu">
+      <article class="game-card" data-accent="gold">
+        <div class="game-card-icon" aria-hidden="true">⭐</div>
+        <h3>Catch the Stars</h3>
+        <p>Tangkap 5 bintang untuk menyelesaikan misimu!</p>
+        <button class="btn big" type="button" data-play="stars">▶ PLAY</button>
+      </article>
+      <article class="game-card" data-accent="green">
+        <div class="game-card-icon" aria-hidden="true">⚽</div>
+        <h3>Afiq's Birthday Football Cup</h3>
+        <p>Tendang bola ke gawang dan cetak gol sebanyak mungkin!</p>
+        <button class="btn big" type="button" data-play="football">▶ PLAY</button>
+      </article>
+      <article class="game-card" data-accent="purple">
+        <div class="game-card-icon" aria-hidden="true">🪐</div>
+        <h3>Space Memory Match</h3>
+        <p>Buka dua kartu dan cocokkan 6 pasang gambar.</p>
+        <button class="btn big" type="button" data-play="memory">▶ PLAY</button>
+      </article>
+      <article class="game-card" data-accent="cyan">
+        <div class="game-card-icon" aria-hidden="true">🚀</div>
+        <h3>Rocket Dash</h3>
+        <p>Kumpulkan bintang dan hindari asteroid!</p>
+        <button class="btn big" type="button" data-play="dash">▶ PLAY</button>
+      </article>
     </div>
-    <p class="game-hint" id="gameHint">Tap bintangnya! ⭐</p>
-    <div id="gameDone" class="card game-done hidden">
-      <div class="big-emoji">🎉</div>
-      <h3>MISSION COMPLETE! ⭐</h3>
-      <p>Hebat, Kapten Afiq! Kamu berhasil mengumpulkan semua bintang! 🚀</p>
-      <p>Hadiah ulang tahunmu sudah terbuka! 🎁</p>
-      <button id="claimGiftBtn" class="btn big" type="button">BUKA HADIAH SPESIAL 🎁</button>
-      <button id="gameRestartBtn" class="btn ghost" type="button">🔄 MAIN LAGI</button>
+
+    <div class="game-screen hidden" id="screen-stars" data-screen="stars" role="region" aria-label="Catch the Stars">
+      <div class="screen-head">
+        <h3 class="screen-title">⭐ Catch the Stars</h3>
+        <button class="btn ghost back-btn" type="button" data-back>← ARCADE</button>
+      </div>
+      <p class="sub">Tangkap 5 bintang untuk menyelesaikan misimu, Kapten!</p>
+      <p class="game-progress" id="gameProgress" role="status" aria-live="polite">STARS COLLECTED: 0/5</p>
+      <div class="game-pips" id="gamePips" aria-hidden="true"></div>
+      <div class="game-area" id="gameArea">
+        <i class="twk t1" aria-hidden="true"></i>
+        <i class="twk t2" aria-hidden="true"></i>
+        <i class="twk t3" aria-hidden="true"></i>
+        <span class="game-astro" aria-hidden="true">👨‍🚀</span>
+        <button id="starBtn" class="game-star" type="button" aria-label="Tap bintang untuk mengumpulkan">⭐</button>
+      </div>
+      <p class="game-hint" id="gameHint">Tap bintangnya! ⭐</p>
+      <div id="gameDone" class="card game-done hidden">
+        <div class="big-emoji">🎉</div>
+        <h3>MISSION COMPLETE! ⭐</h3>
+        <p>Hebat, Kapten Afiq! Kamu berhasil mengumpulkan semua bintang! 🚀</p>
+        <p>Hadiah ulang tahunmu sudah terbuka! 🎁</p>
+        <button id="claimGiftBtn" class="btn big" type="button">BUKA HADIAH SPESIAL 🎁</button>
+        <button id="gameRestartBtn" class="btn ghost" type="button">🔄 MAIN LAGI</button>
+        <button class="btn ghost" type="button" data-back>← BACK TO ARCADE</button>
+      </div>
     </div>
+
+    <div class="game-screen hidden" id="screen-football" data-screen="football" role="region" aria-label="Afiq's Birthday Football Cup">
+      <div class="screen-head">
+        <h3 class="screen-title">⚽ Afiq's Birthday Football Cup</h3>
+        <button class="btn ghost back-btn" type="button" data-back>← ARCADE</button>
+      </div>
+      <p class="sub">Pilih arah tendanganmu dan cetak gol! Maksimal 5 tendangan.</p>
+      <p class="game-progress" id="fbScore" role="status" aria-live="polite">GOALS: 0 · KICKS: 0/5</p>
+      <div class="pitch" id="fbPitch">
+        <div class="goal" aria-hidden="true">
+          <span class="post post-left"></span>
+          <span class="post post-right"></span>
+          <span class="crossbar"></span>
+          <span class="net"></span>
+        </div>
+        <div class="keeper" id="fbKeeper" aria-hidden="true">🧤</div>
+        <div class="ball" id="fbBall" aria-hidden="true">⚽</div>
+        <span class="pitch-spot" aria-hidden="true"></span>
+      </div>
+      <div class="penalty-actions" id="fbActions">
+        <button class="kick-btn" type="button" data-kick="left" aria-label="Tendang ke kiri">⬅️<span>KIRI</span></button>
+        <button class="kick-btn" type="button" data-kick="center" aria-label="Tendang ke tengah">⬆️<span>TENGAH</span></button>
+        <button class="kick-btn" type="button" data-kick="right" aria-label="Tendang ke kanan">➡️<span>KANAN</span></button>
+      </div>
+      <p class="game-hint" id="fbHint">Pilih arah, lalu lihat aksinya! 🥅</p>
+      <div id="fbDone" class="card game-done hidden">
+        <div class="big-emoji">🥳</div>
+        <h3 id="fbDoneTitle">FULL TIME!</h3>
+        <p id="fbDoneText"></p>
+        <button id="fbAgainBtn" class="btn big" type="button">🔄 PLAY AGAIN</button>
+        <button class="btn ghost" type="button" data-back>← BACK TO ARCADE</button>
+      </div>
+    </div>
+
+    <div class="game-screen hidden" id="screen-memory" data-screen="memory" role="region" aria-label="Space Memory Match">
+      <div class="screen-head">
+        <h3 class="screen-title">🪐 Space Memory Match</h3>
+        <button class="btn ghost back-btn" type="button" data-back>← ARCADE</button>
+      </div>
+      <p class="sub">Buka dua kartu setiap giliran dan cari pasangan yang sama!</p>
+      <p class="game-progress" id="memStats" role="status" aria-live="polite">PASANGAN: 0/6 · PERCOBAAN: 0</p>
+      <div class="memory-grid" id="memGrid" aria-label="Papan kartu memori"></div>
+      <div id="memDone" class="card game-done hidden">
+        <div class="big-emoji">🏆</div>
+        <h3>YOU MATCHED THEM ALL!</h3>
+        <p id="memDoneText"></p>
+        <button id="memAgainBtn" class="btn big" type="button">🔄 PLAY AGAIN</button>
+        <button class="btn ghost" type="button" data-back>← BACK TO ARCADE</button>
+      </div>
+    </div>
+
+    <div class="game-screen hidden" id="screen-dash" data-screen="dash" role="region" aria-label="Rocket Dash">
+      <div class="screen-head">
+        <h3 class="screen-title">🚀 Rocket Dash</h3>
+        <button class="btn ghost back-btn" type="button" data-back>← ARCADE</button>
+      </div>
+      <p class="sub">Kumpulkan 10 bintang dan hindari asteroid untuk menyelamatkan misi!</p>
+      <p class="game-progress" id="dashStats" role="status" aria-live="polite">⭐ 0/10 · ❤️ 3</p>
+      <div class="dash-area" id="dashArea">
+        <canvas id="dashCanvas" aria-label="Area permainan Rocket Dash"></canvas>
+        <div id="dashDone" class="dash-overlay hidden">
+          <div class="card game-done">
+            <div class="big-emoji" id="dashDoneEmoji">🎉</div>
+            <h3 id="dashDoneTitle">MISSION COMPLETE!</h3>
+            <p id="dashDoneText"></p>
+            <button id="dashAgainBtn" class="btn big" type="button">🔄 PLAY AGAIN</button>
+            <button class="btn ghost" type="button" data-back>← BACK TO ARCADE</button>
+          </div>
+        </div>
+      </div>
+      <div class="dash-controls" id="dashControls">
+        <button class="dash-btn" type="button" data-dash="left" aria-label="Gerakkan roket ke kiri">◀</button>
+        <button class="dash-btn" type="button" data-dash="right" aria-label="Gerakkan roket ke kanan">▶</button>
+      </div>
+      <p class="game-hint" id="dashHint">Desktop: tombol panah ← → · HP: tahan tombol ◀ ▶</p>
+    </div>
+
+    <button id="toBirthdayBtn" class="btn ghost arcade-continue" type="button">🎉 LANJUT KE PERAYAAN ULANG TAHUN</button>
   </section>
 
   <section class="gift">
