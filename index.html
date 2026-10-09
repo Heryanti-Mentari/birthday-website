@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0a0f2e">
+<link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAzMiAzMic+PHJlY3Qgd2lkdGg9JzMyJyBoZWlnaHQ9JzMyJyByeD0nNycgZmlsbD0nIzBhMGYyZScvPjxwYXRoIGQ9J00xNiA1bDMgNi4yIDYuOCAxLTQuOSA0LjggMS4yIDYuOEwxNiAyMC42IDkuOSAyMy44bDEuMi02LjgtNC45LTQuOCA2LjgtMXonIGZpbGw9JyNmZmQ1NGEnLz48L3N2Zz4=">
+<title>Little Astronaut — Level 5 Unlocked</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="space" aria-hidden="true">
+  <div class="space-layer nebula">
+    <span class="neb neb1"></span>
+    <span class="neb neb2"></span>
+    <span class="neb neb3"></span>
+    <span class="neb neb4"></span>
+  </div>
+  <div id="stars" class="space-layer"></div>
+  <div id="dust" class="space-layer dust"></div>
+  <div id="starsNear" class="space-layer"></div>
+  <div class="space-layer planets">
+    <div class="planet p1"></div>
+    <div class="planet p2"></div>
+    <div class="planet p3"><i class="ring"></i></div>
+    <div class="moon"></div>
+  </div>
+  <div class="space-layer meteors">
+    <span class="meteor m1"></span>
+    <span class="meteor m2"></span>
+  </div>
+</div>
+<canvas id="confetti" aria-hidden="true"></canvas>
+
+<section id="intro">
+  <p id="introText" class="intro-line">🌌 INCOMING MISSION...</p>
+  <button id="startBtn" class="btn big hidden" type="button">🚀 START THE ADVENTURE</button>
+  <div id="rocket" aria-hidden="true">🚀</div>
+  <div id="launchFx" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+</section>
+
+<button id="musicBtn" class="music hidden" type="button" aria-label="Music on/off">🔊</button>
+
+<main id="main" class="hidden">
+  <header class="hero">
+    <span class="badge">MISSION 05</span>
+    <h1>🚀 Happy 5th Birthday 🚀</h1>
+    <h2 class="name" data-name></h2>
+    <p class="level">LEVEL 5 UNLOCKED! ⭐</p>
+    <p class="sub">Petualangan baru dimulai...</p>
+    <div class="hero-orbit">
+      <div class="frame hero-frame" id="heroPhoto"></div>
+      <span class="orbit-star" aria-hidden="true">⭐</span>
+    </div>
+  </header>
+
+  <section class="journey" aria-label="Five year journey">
+    <h2 class="title">Perjalanan 5 Tahun</h2>
+    <div id="timeline" class="timeline"></div>
+  </section>
+
+  <section class="game" id="game" aria-labelledby="gameTitle">
+    <span class="badge">MINI GAME</span>
+    <h2 class="title" id="gameTitle">⭐ CATCH THE STARS</h2>
+    <p class="sub">Tangkap 5 bintang untuk menyelesaikan misimu, Kapten!</p>
+    <p class="game-progress" id="gameProgress" role="status" aria-live="polite">STARS COLLECTED: 0/5</p>
+    <div class="game-pips" id="gamePips" aria-hidden="true"></div>
+    <div class="game-area" id="gameArea">
+      <i class="twk t1" aria-hidden="true"></i>
+      <i class="twk t2" aria-hidden="true"></i>
+      <i class="twk t3" aria-hidden="true"></i>
+      <span class="game-astro" aria-hidden="true">👨‍🚀</span>
+      <button id="starBtn" class="game-star" type="button" aria-label="Tap bintang untuk mengumpulkan">⭐</button>
+    </div>
+    <p class="game-hint" id="gameHint">Tap bintangnya! ⭐</p>
+    <div id="gameDone" class="card game-done hidden">
+      <div class="big-emoji">🎉</div>
+      <h3>MISSION COMPLETE! ⭐</h3>
+      <p>Hebat, Kapten Afiq! Kamu berhasil mengumpulkan semua bintang! 🚀</p>
+      <p>Hadiah ulang tahunmu sudah terbuka! 🎁</p>
+      <button id="claimGiftBtn" class="btn big" type="button">BUKA HADIAH SPESIAL 🎁</button>
+      <button id="gameRestartBtn" class="btn ghost" type="button">🔄 MAIN LAGI</button>
+    </div>
+  </section>
+
+  <section class="gift">
+    <h2 class="title">Birthday Gift</h2>
+    <div class="gift-emoji" aria-hidden="true">🎁</div>
+    <button id="giftBtn" class="btn big" type="button">🎁 OPEN YOUR BIRTHDAY GIFT</button>
+    <button id="secretBtn" class="btn ghost" type="button">🔒 SECRET MESSAGE</button>
+    <div id="secretBox" class="card secret hidden" aria-live="polite"></div>
+  </section>
+
+  <section class="guestbook" id="guestbook">
+    <h2 class="title">💌 Birthday Guestbook</h2>
+    <p class="sub">Leave a message for our little astronaut! 🚀</p>
+    <form id="gbForm" class="card form" novalidate>
+      <label for="gbName">Nama</label>
+      <input id="gbName" maxlength="30" autocomplete="name" placeholder="Nama kamu">
+      <label for="gbMsg">Ucapan</label>
+      <textarea id="gbMsg" maxlength="300" rows="4" placeholder="Tulis ucapan ulang tahun..."></textarea>
+      <small id="gbCount">0/300</small>
+      <button id="gbSend" class="btn big" type="submit">🚀 SEND TO SPACE</button>
+      <p id="gbStatus" class="status" role="status" aria-live="polite"></p>
+    </form>
+
+    <h2 class="title">🌍 Messages from Earth</h2>
+    <p id="gbTotal" class="counter">🌍 0 Messages Received</p>
+    <div id="gbBanner" class="banner hidden">🚀 NEW MESSAGE FROM EARTH!</div>
+    <p id="gbLoading" class="sub">Receiving transmission...</p>
+    <div id="gbEmpty" class="empty hidden">
+      <div class="big-emoji">🌌</div>
+      <p>No messages from Earth yet...</p>
+      <p class="sub">Be the first one to send a birthday wish! 🚀</p>
+      <button id="gbFirst" class="btn" type="button">💌 SEND FIRST MESSAGE</button>
+    </div>
+    <div id="gbList" class="list"></div>
+  </section>
+
+  <footer class="ending">
+    <div class="big-emoji">🚀</div>
+    <h2>END OF MISSION... BEGINNING OF ANOTHER ADVENTURE! 🌌</h2>
+    <p>Lima tahun penuh cerita, dan masih banyak keajaiban yang menunggu untuk ditemukan.</p>
+    <p class="ending-close">Keep shining, Little Astronaut! 🚀⭐</p>
+    <p class="stars-row">⭐ 🌙 🚀 ⭐</p>
+    <p class="sign-label">With lots of love,</p>
+    <p id="endSign"></p>
+  </footer>
+</main>
+
+<div id="modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="card modal-card">
+    <h2 id="modalTitle">🎂 Happy 5th Birthday, Afiq Zayyan! 🚀</h2>
+    <div id="modalBody"></div>
+    <p id="modalSign" class="sign"></p>
+    <button id="modalClose" class="btn" type="button">Tutup ✨</button>
+  </div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>
